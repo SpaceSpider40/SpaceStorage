@@ -1,0 +1,9 @@
+== CONFIG ==
+{
+    clients: [
+        {
+            uid: "" /uuid v4
+            root: "" /path
+        }
+    ]
+}
