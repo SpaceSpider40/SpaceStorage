@@ -1,10 +1,13 @@
 package com.space;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -17,7 +20,7 @@ public class FileServer extends Thread {
     private final short port;
     private final UUID clientId;
 
-    private boolean isAuth = false;
+    private final List<FileHandler> fileHandlers = new ArrayList<>();
 
     public FileServer(short port, UUID clientId) {
         this.port = port;
@@ -57,7 +60,17 @@ public class FileServer extends Thread {
                 if (line == null) continue;
                 if (!auth(line)) continue;
 
-                new FileHandler(socket).start();
+                try{
+
+                    FileHandler fh = new FileHandler(socket);
+
+                    fileHandlers.add(fh);
+
+                    fh.start();
+
+                }catch(Exception e){
+                    System.err.println(e.getMessage());
+                }
 
                 interrupt();
             }

@@ -8,7 +8,6 @@ import java.util.List;
 
 public class SpaceStorage
 {
-
     private static final List<FileServer> fileServers = new ArrayList<>();
 
     public static void main(String[] args) {
