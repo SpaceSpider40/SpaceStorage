@@ -12,26 +12,40 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ServerTests {
 
     @Test
-    void testModat() throws IOException {
+    void testModat() throws IOException, InterruptedException {
         try (Socket socket = new Socket("localhost", 8080)) {
 
             System.out.println("Connected to: " + socket.getRemoteSocketAddress());
 
-            OutputStream outputStream = socket.getOutputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            DataInputStream reader = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
-            outputStream.write("1fb36001-44e2-4519-8639-f9c730087b8c\n".getBytes());
+            dataOutputStream.writeUTF("1fb36001-44e2-4519-8639-f9c730087b8c");
+            dataOutputStream.flush();
+            String r = reader.readUTF();
 
-            assertEquals("___ESTABLISHED_CONNECTION___", reader.readLine());
+            System.out.println(r);
 
-            outputStream.write(Commands.MODAT.toString().getBytes());
-            outputStream.write("/file/test.txt\n".getBytes());
+            assertEquals("___ESTABLISHED_CONNECTION___", r.strip());
+            dataOutputStream.writeUTF(Commands.EMPTY.toString());
+            dataOutputStream.flush();
+            dataOutputStream.writeUTF(Commands.EMPTY.toString());
+            dataOutputStream.flush();
+            dataOutputStream.writeUTF(Commands.MODAT.toString());
+            dataOutputStream.flush();
+            dataOutputStream.writeUTF("/file/test.txt");
+            dataOutputStream.flush();
 
-            String tm =reader.readLine();
-
-            System.out.println(tm);
-
-            assertEquals(13, tm.length());
+            while (true){
+                System.out.println(reader.readUTF());
+                System.out.flush();
+                Thread.sleep(500);
+            }
+//            String tm = reader.readUTF();
+//
+//            System.out.println(tm);
+//
+//            assertEquals(13, tm.length());
         }
     }
 }

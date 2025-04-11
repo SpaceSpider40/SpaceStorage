@@ -1,9 +1,6 @@
 package com.space;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -46,22 +43,20 @@ public class FileServer extends Thread {
 
         long maxTimeout = System.currentTimeMillis() + MAX_WAIT_TIME;
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
         virtualThreadBuilder.start(() -> {
             while (System.currentTimeMillis() < maxTimeout) {
                 String line;
                 try {
-                    line = in.readLine();
+                    line = in.readUTF();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
 
-                if (line == null) continue;
                 if (!auth(line)) continue;
 
                 try{
-
                     FileHandler fh = new FileHandler(socket);
 
                     fileHandlers.add(fh);

@@ -2,11 +2,12 @@ package com.space;
 
 public enum Commands
 {
-    ESTABLISHED_CONNECTION("___ESTABLISHED_CONNECTION___\n"),
-    MODAT("___MODAT___\n"),
-    FILE("___FILE___\n"),
-    OK("___OK___\n"),
-    UNKNOWN("___UNKNOWN___\n");
+    ESTABLISHED_CONNECTION("___ESTABLISHED_CONNECTION___"),
+    MODAT("___MODAT___"),
+    FILE("___FILE___"),
+    OK("___OK___"),
+    EMPTY("___EMPTY___"),
+    UNKNOWN("___UNKNOWN___");
 
     private final String command;
     Commands(final String s) {

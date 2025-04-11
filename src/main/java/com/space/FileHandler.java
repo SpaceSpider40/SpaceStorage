@@ -8,6 +8,8 @@ public class FileHandler extends Thread {
     private final Socket socket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private final DataOutputStream dataOutputStream;
+    private final DataInputStream dataInputStream;
 
     private boolean canRead = true;
 
@@ -17,6 +19,9 @@ public class FileHandler extends Thread {
         try {
             inputStream = this.socket.getInputStream();
             outputStream = this.socket.getOutputStream();
+
+            dataInputStream = new DataInputStream(new BufferedInputStream(inputStream));
+            dataOutputStream = new DataOutputStream(new BufferedOutputStream(outputStream));
         } catch (IOException e) {
             throw new RuntimeException("Could not get i/o stream: " + e.getMessage());
         }
@@ -31,62 +36,40 @@ public class FileHandler extends Thread {
 
             listen();
 
-        } catch (IOException e) {
-            System.out.println("I/O error: " + e);
+            sleep(1000);
+
+        } catch (IOException | InterruptedException e) {
+            System.out.println("I/O error: " + e.getMessage());
         }
     }
 
-    private void listen() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-
+    private void listen() throws IOException, InterruptedException {
         while (canRead) {
-            String line = br.readLine();
+            String line = dataInputStream.readUTF().strip();
 
-            if (line == null) continue;
+            System.out.println("Received Line: " + line.strip());
+            System.out.flush();
 
-            System.out.println("receivedLine: " + line);
-
-            Commands cmd;
-            try{
-                cmd = Commands.valueOf(line + "\n");
-            }catch (Exception e){
-                cmd = Commands.UNKNOWN;
-            }
-
-            switch (cmd) {
-                case Commands.MODAT:
-                    String nextLine = br.readLine();
-
-                    System.out.println("nextLine:" +nextLine);
-
-                    long timestamp = handleModat(nextLine);
-
-                    write(timestamp + "\n");
-                    break;
-                default:
-                    write(Commands.UNKNOWN.toString());
-                    break;
-            }
+//            Thread.yield();
+//            write(line);
+            if (line.equals(Commands.MODAT.toString())) write(Commands.OK.toString());
+            sleep(500);
         }
-
     }
 
     private long handleModat(String filePath) {
         return System.currentTimeMillis();
     }
 
-    private void write(String message) throws IOException {
+    private synchronized void write(String message) throws IOException {
 
         if (socket.isClosed()) {
             return;
         }
 
-        if (message.charAt(message.length() - 1) != '\n') {
-            message += '\n';
-        }
-
         System.out.println("Writing message: " + message);
 
-        outputStream.write(message.getBytes());
+        dataOutputStream.writeUTF(message);
+        dataOutputStream.flush();
     }
 }
