@@ -1,4 +1,5 @@
-== CONFIG ==
+## Config 
+```
 {
     clients: [
         {
@@ -7,8 +8,9 @@
         }
     ]
 }
+```
 
-== Server client communication ==
+## Server client communication
 
 --- CLIENT ASK MODAT ---
 -> client: connection
@@ -26,3 +28,6 @@
 -> client: writes bytes
 <- server: command "___OK___" # server received all bytes declared by client
 
+## Files
+### Vault
+Root folder created upon request by server. Client can assign who has access to this vault

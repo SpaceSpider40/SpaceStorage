@@ -4,6 +4,9 @@ public enum Commands
 {
     ESTABLISHED_CONNECTION("___ESTABLISHED_CONNECTION___"),
     MODAT("___MODAT___"),
+
+    VAULT_CREATE("___VAULT_CREATE___"),
+
     FILE("___FILE___"),
     OK("___OK___"),
     EMPTY("___EMPTY___"),

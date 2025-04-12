@@ -1,9 +1,12 @@
 package com.space;
 
+import com.space.file.FileManager;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public class FileClientHandler extends Thread {
     private final Socket socket;
@@ -62,8 +65,15 @@ public class FileClientHandler extends Thread {
     }
 
     private void handleModat(String filePath) throws IOException {
-        System.out.println("modat: " + filePath);
-        write(String.valueOf(System.currentTimeMillis()));
+        Long modificationTime;
+
+        try{
+            modificationTime = FileManager.getInstance().getModificationDate(filePath);
+        } catch (IOException e) {
+            modificationTime = 0L;
+        }
+
+        write(String.valueOf(modificationTime));
     }
 
     private synchronized void write(String message) throws IOException {

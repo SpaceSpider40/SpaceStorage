@@ -1,4 +1,9 @@
 {
+  "server": {
+    "fileManager": {
+      "root": "D:\\Projects\\SpaceStorageRoot"
+    }
+  },
   "clients": [
     {
       "uid":"1fb36001-44e2-4519-8639-f9c730087b8c",

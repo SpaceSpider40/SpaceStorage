@@ -34,7 +34,7 @@ public class TestClients {
             writer.newLine();
             writer.flush();
             Thread.sleep(s);
-            writer.write("/file/test.txt");
+            writer.write("C:\\Users\\space\\IdeaProjects\\SpaceStorage\\test.txt");
             writer.newLine();
             writer.flush();
             Thread.sleep(s);
