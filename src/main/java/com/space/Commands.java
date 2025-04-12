@@ -14,6 +14,13 @@ public enum Commands
         command = s;
     }
 
+    public static Commands fromString(final String s) {
+        for (Commands c : Commands.values()) {
+            if (c.command.equalsIgnoreCase(s)) return c;
+        }
+        return UNKNOWN;
+    }
+
     @Override
     public String toString() {
         return command;

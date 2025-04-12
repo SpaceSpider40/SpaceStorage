@@ -46,13 +46,24 @@ public class FileClientHandler extends Thread {
     private synchronized void listen() throws IOException, InterruptedException {
         String line;
         while ((line = bufferedReader.readLine()) != null) {
-            System.out.println("Received Line: " + line.strip());
-            System.out.flush();
+            line = line.strip().replace(".", "");
+
+            System.out.println("received: " + line);
+            Commands command = Commands.fromString(line);
+
+            switch (command) {
+                case Commands.MODAT -> handleModat(bufferedReader.readLine());
+                default -> {
+                    System.out.println("Unknown command: " + line);
+                    //todo: log the incident
+                }
+            }
         }
     }
 
-    private long handleModat(String filePath) {
-        return System.currentTimeMillis();
+    private void handleModat(String filePath) throws IOException {
+        System.out.println("modat: " + filePath);
+        write(String.valueOf(System.currentTimeMillis()));
     }
 
     private synchronized void write(String message) throws IOException {

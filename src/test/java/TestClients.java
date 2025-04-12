@@ -4,12 +4,10 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.net.Socket;
 
-import org.junit.jupiter.api.Assertions.*;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ServerTests {
+public class TestClients {
 
     private static int s = 100;
 
@@ -32,14 +30,6 @@ public class ServerTests {
 
             Thread.sleep(s);
             assertEquals("___ESTABLISHED_CONNECTION___", r.strip());
-            writer.write(Commands.EMPTY.toString());
-            writer.newLine();
-            writer.flush();
-            Thread.sleep(s);
-            writer.write(Commands.EMPTY.toString());
-            writer.newLine();
-            writer.flush();
-            Thread.sleep(s);
             writer.write(Commands.MODAT.toString());
             writer.newLine();
             writer.flush();
@@ -49,16 +39,11 @@ public class ServerTests {
             writer.flush();
             Thread.sleep(s);
 
-            while (true){
-                System.out.println(reader.readLine());
-                System.out.flush();
-                Thread.sleep(500);
-            }
-//            String tm = reader.readUTF();
-//
-//            System.out.println(tm);
-//
-//            assertEquals(13, tm.length());
+            String tm = reader.readLine();
+
+            System.out.println(tm);
+
+            assertEquals(13, tm.length());
         }
     }
 }
