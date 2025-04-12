@@ -2,26 +2,26 @@ package com.space;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
-public class FileHandler extends Thread {
+public class FileClientHandler extends Thread {
     private final Socket socket;
-    private final InputStream inputStream;
-    private final OutputStream outputStream;
-    private final DataOutputStream dataOutputStream;
-    private final DataInputStream dataInputStream;
+    private final BufferedReader bufferedReader;
+    private final BufferedWriter bufferedWriter;
 
     private boolean canRead = true;
 
-    public FileHandler(Socket socket) throws RuntimeException {
+    public FileClientHandler(Socket socket) throws RuntimeException, SocketException {
         this.socket = socket;
+        this.socket.setSoTimeout(0);
 
         try {
-            inputStream = this.socket.getInputStream();
-            outputStream = this.socket.getOutputStream();
+            var inputStream = this.socket.getInputStream();
+            var outputStream = this.socket.getOutputStream();
 
-            dataInputStream = new DataInputStream(new BufferedInputStream(inputStream));
-            dataOutputStream = new DataOutputStream(new BufferedOutputStream(outputStream));
+            bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException("Could not get i/o stream: " + e.getMessage());
         }
@@ -43,17 +43,11 @@ public class FileHandler extends Thread {
         }
     }
 
-    private void listen() throws IOException, InterruptedException {
-        while (canRead) {
-            String line = dataInputStream.readUTF().strip();
-
+    private synchronized void listen() throws IOException, InterruptedException {
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
             System.out.println("Received Line: " + line.strip());
             System.out.flush();
-
-//            Thread.yield();
-//            write(line);
-            if (line.equals(Commands.MODAT.toString())) write(Commands.OK.toString());
-            sleep(500);
         }
     }
 
@@ -69,7 +63,8 @@ public class FileHandler extends Thread {
 
         System.out.println("Writing message: " + message);
 
-        dataOutputStream.writeUTF(message);
-        dataOutputStream.flush();
+        bufferedWriter.write(message);
+        bufferedWriter.newLine();
+        bufferedWriter.flush();
     }
 }

@@ -17,7 +17,7 @@ public class FileServer extends Thread {
     private final short port;
     private final UUID clientId;
 
-    private final List<FileHandler> fileHandlers = new ArrayList<>();
+    private final List<FileClientHandler> fileHandlers = new ArrayList<>();
 
     public FileServer(short port, UUID clientId) {
         this.port = port;
@@ -41,43 +41,18 @@ public class FileServer extends Thread {
     private void handle(Socket socket) throws IOException {
         System.out.println("Accepted connection from " + socket.getRemoteSocketAddress());
 
-        long maxTimeout = System.currentTimeMillis() + MAX_WAIT_TIME;
+        socket.setSoTimeout(5000);
 
-        DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        virtualThreadBuilder.start(() -> {
-            while (System.currentTimeMillis() < maxTimeout) {
-                String line;
-                try {
-                    line = in.readUTF();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (!auth(line)) continue;
-
-                try{
-                    FileHandler fh = new FileHandler(socket);
-
-                    fileHandlers.add(fh);
-
+        virtualThreadBuilder.start(()->{
+            try {
+                if (auth(in.readLine().strip())){
+                    FileClientHandler fh = new FileClientHandler(socket);
                     fh.start();
-
-                }catch(Exception e){
-                    System.err.println(e.getMessage());
                 }
-
-                interrupt();
-            }
-
-            if (!isInterrupted()){
-                try {
-                    socket.close();
-
-                    System.out.println(" timeout for: " + socket.getRemoteSocketAddress());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
     }

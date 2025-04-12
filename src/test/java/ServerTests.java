@@ -11,33 +11,46 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServerTests {
 
+    private static int s = 100;
+
     @Test
     void testModat() throws IOException, InterruptedException {
         try (Socket socket = new Socket("localhost", 8080)) {
 
             System.out.println("Connected to: " + socket.getRemoteSocketAddress());
 
-            DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-            DataInputStream reader = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            dataOutputStream.writeUTF("1fb36001-44e2-4519-8639-f9c730087b8c");
-            dataOutputStream.flush();
-            String r = reader.readUTF();
+            writer.write("1fb36001-44e2-4519-8639-f9c730087b8c");
+            writer.newLine();
+            writer.flush();
+
+            String r = reader.readLine();
 
             System.out.println(r);
 
+            Thread.sleep(s);
             assertEquals("___ESTABLISHED_CONNECTION___", r.strip());
-            dataOutputStream.writeUTF(Commands.EMPTY.toString());
-            dataOutputStream.flush();
-            dataOutputStream.writeUTF(Commands.EMPTY.toString());
-            dataOutputStream.flush();
-            dataOutputStream.writeUTF(Commands.MODAT.toString());
-            dataOutputStream.flush();
-            dataOutputStream.writeUTF("/file/test.txt");
-            dataOutputStream.flush();
+            writer.write(Commands.EMPTY.toString());
+            writer.newLine();
+            writer.flush();
+            Thread.sleep(s);
+            writer.write(Commands.EMPTY.toString());
+            writer.newLine();
+            writer.flush();
+            Thread.sleep(s);
+            writer.write(Commands.MODAT.toString());
+            writer.newLine();
+            writer.flush();
+            Thread.sleep(s);
+            writer.write("/file/test.txt");
+            writer.newLine();
+            writer.flush();
+            Thread.sleep(s);
 
             while (true){
-                System.out.println(reader.readUTF());
+                System.out.println(reader.readLine());
                 System.out.flush();
                 Thread.sleep(500);
             }
