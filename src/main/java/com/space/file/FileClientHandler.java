@@ -1,12 +1,11 @@
-package com.space;
+package com.space.file;
 
-import com.space.file.FileManager;
+import com.space.Commands;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 
 public class FileClientHandler extends Thread {
     private final Socket socket;
@@ -55,7 +54,7 @@ public class FileClientHandler extends Thread {
             Commands command = Commands.fromString(line);
 
             switch (command) {
-                case Commands.MODAT -> handleModat(bufferedReader.readLine());
+                case Commands.MODAT -> handleModat(Long.valueOf(bufferedReader.readLine()), bufferedReader.readLine());
                 default -> {
                     System.out.println("Unknown command: " + line);
                     //todo: log the incident
@@ -64,11 +63,11 @@ public class FileClientHandler extends Thread {
         }
     }
 
-    private void handleModat(String filePath) throws IOException {
+    private void handleModat(Long vaultId, String filePath) throws IOException {
         Long modificationTime;
 
         try{
-            modificationTime = FileManager.getInstance().getModificationDate(filePath);
+            modificationTime = FileManager.getInstance().getModificationDate(vaultId, filePath);
         } catch (IOException e) {
             modificationTime = 0L;
         }

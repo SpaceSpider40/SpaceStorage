@@ -16,6 +16,7 @@
 -> client: connection
 <- server: command "___ESTABLISHED_CONNECTION___" // server is ready and listening
 -> client: command "___MODAT___"
+-> client: [vaultId]
 -> client: [filepath]
 <- server: modat in ms
 

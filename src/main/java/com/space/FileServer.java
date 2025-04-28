@@ -1,5 +1,7 @@
 package com.space;
 
+import com.space.file.FileClientHandler;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
