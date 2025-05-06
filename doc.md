@@ -1,5 +1,5 @@
 ## Server Config 
-```
+```json5
 {
   "server": {
     "fileManager": {
@@ -10,11 +10,14 @@
     {
       "uid":"<uuid v4>",
       "path":"<path>",
-      "port": <port>
+      "port": 0 //example
     }
   ]
 }
 ```
+
+## Vaults
+folders inside root directory are named with their unique UUID. Server maps contents of root directory into hashmap <UUID, path>. Client passed UUID of a vault that it wants to interact with.
 
 ## Server client communication
 
@@ -22,7 +25,7 @@
 -> client: connection
 <- server: command "___ESTABLISHED_CONNECTION___" // server is ready and listening
 -> client: command "___MODAT___"
--> client: [vaultId]
+-> client: [vaultUUID]
 -> client: [filepath]
 <- server: modat in ms
 

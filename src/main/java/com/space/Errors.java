@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum ERRORS {
+public enum Errors {
 
     //COMMUNICATION ERRORS
     BAD_COMMAND_PARAMS(301),
 
-    //MISSING ELEMENTS
+    //VAULT ERRORS
     VAULT_NOT_FOUND(401),
+    VAULT_NOT_CREATED(402),
     ;
 
     @Getter

@@ -1,13 +1,14 @@
 package com.space.file;
 
 import com.space.Commands;
-import com.space.ERRORS;
+import com.space.Errors;
 import com.space.exceptions.VaultNotFoundException;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class FileClientHandler extends Thread {
     private final Socket socket;
@@ -65,10 +66,17 @@ public class FileClientHandler extends Thread {
             switch (command) {
                 case Commands.MODAT -> {
                     try {
-                        handleModat(Long.parseLong(bufferedReader.readLine()),
+                        handleModat(UUID.fromString(bufferedReader.readLine()),
                                     bufferedReader.readLine());
-                    } catch (NumberFormatException e) {
-                        write(Commands.ERROR, ERRORS.BAD_COMMAND_PARAMS);
+                    } catch (IllegalArgumentException e) {
+                        write(Commands.ERROR, Errors.BAD_COMMAND_PARAMS);
+                    }
+                }
+                case Commands.VAULT_CREATE -> {
+                    try {
+                         write(handleVaultCreate().toString());
+                    } catch (IOException e) {
+                        write(Commands.ERROR, Errors.VAULT_NOT_CREATED);
                     }
                 }
                 default -> {
@@ -79,23 +87,29 @@ public class FileClientHandler extends Thread {
         }
     }
 
-    private void handleModat(Long vaultId, String filePath) throws
+    private void handleModat(UUID uuid, String filePath) throws
             IOException
     {
         Long modificationTime;
 
         try {
             modificationTime = FileManager.getInstance()
-                                          .getModificationDate(vaultId, filePath);
+                                          .getModificationDate(uuid, filePath);
         } catch (IOException e) {
             modificationTime = 0L;
         } catch (VaultNotFoundException e) {
             write(Commands.ERROR);
-            write(ERRORS.VAULT_NOT_FOUND);
+            write(Errors.VAULT_NOT_FOUND);
             return;
         }
 
         write(String.valueOf(modificationTime));
+    }
+
+    private UUID handleVaultCreate() throws
+            IOException
+    {
+        return FileManager.getInstance().CreateVault();
     }
 
     private synchronized void write(String message) throws
@@ -119,13 +133,13 @@ public class FileClientHandler extends Thread {
         write(command.toString());
     }
 
-    private synchronized void write(ERRORS error) throws
+    private synchronized void write(Errors error) throws
             IOException
     {
         write(error.getValue());
     }
 
-    private synchronized void write(Commands command, ERRORS errors) throws
+    private synchronized void write(Commands command, Errors errors) throws
             IOException
     {
         write(command);

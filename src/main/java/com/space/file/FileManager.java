@@ -7,17 +7,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class FileManager {
     private static volatile FileManager instance;
     private static final Object mutex = new Object();
 
-    private static final List<Vault> registeredVaults = new ArrayList<>(); //todo: there is a possibility that this will be needed to be reloaded
+    private static final HashMap<UUID, File> vaultsMap = new HashMap<>();
 
     private FileManager() {
         findVaults();
@@ -36,21 +32,44 @@ public class FileManager {
         return result;
     }
 
-    public Long getModificationDate(Long vaultId, String filepath) throws IOException, VaultNotFoundException {
+    public UUID CreateVault() throws
+            IOException
+    {
+        UUID uuid = createVaultUUID();
 
-        Vault v = registeredVaults.stream()
-                                       .filter(vault -> Objects.equals(vault.getId(), vaultId))
-                                       .findAny()
-                                       .orElse(null);
+        File dir = Files.createDirectories(Path.of(Config.fileSystemRoot, uuid.toString())).toFile();
+
+        vaultsMap.put(uuid, dir);
+
+        return uuid;
+    }
+
+    public Long getModificationDate(UUID uuid, String filepath) throws
+            IOException,
+            VaultNotFoundException
+    {
+
+        File v = vaultsMap.get(uuid);
 
         if (v == null) {
-            throw new VaultNotFoundException("Vault " + vaultId + " not found");
+            throw new VaultNotFoundException("Vault " + uuid + " not found");
         }
 
-        System.out.println(v.getRootPath() + filepath);
+        System.out.println(v.getAbsoluteFile() + filepath);
 
-        return Files.getLastModifiedTime(Path.of(v.getRootPath() + filepath))
+        return Files.getLastModifiedTime(Path.of(v.getAbsolutePath(), filepath))
                     .toMillis();
+    }
+
+    private UUID createVaultUUID() {
+        UUID uuid = UUID.randomUUID();
+
+        //in case we have duplicate
+        while (vaultsMap.containsKey(uuid)) {
+            uuid = UUID.randomUUID();
+        }
+
+        return uuid;
     }
 
     private void findVaults() {
@@ -63,20 +82,11 @@ public class FileManager {
                 if (file == null) continue;
                 if (!file.isDirectory()) continue;
 
-                File[] vaults = file.listFiles();
-
-                if (vaults == null) continue;
-
-                for (File vaultFile : vaults) {
-                    if (vaultFile.isFile() && vaultFile.getName()
-                                                       .equalsIgnoreCase("vc_" + Vault.configFileSuffix + ".json")) {
-                        System.out.println("Found vault " + vaultFile);
-                        try {
-                            registeredVaults.add(Vault.fromConfig(vaultFile));
-                        } catch (IOException e) {
-                            System.err.println("Failed to load vault " + vaultFile);
-                        }
-                    }
+                try {
+                    UUID uuid = UUID.fromString(file.getName());
+                    vaultsMap.put(uuid, file);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Invalid UUID: " + file.getName());
                 }
             }
         } else {

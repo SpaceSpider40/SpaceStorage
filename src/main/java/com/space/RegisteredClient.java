@@ -1,7 +1,10 @@
 package com.space;
 
+import lombok.Getter;
+
 import java.util.UUID;
 
+@Getter
 public class RegisteredClient {
     final UUID uid;
     final String path;
