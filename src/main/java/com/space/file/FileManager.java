@@ -1,6 +1,7 @@
 package com.space.file;
 
 import com.space.config.Config;
+import com.space.exceptions.VaultNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class FileManager {
     private static volatile FileManager instance;
     private static final Object mutex = new Object();
 
-    private static final List<Vault> registeredVaults = new ArrayList<>();
+    private static final List<Vault> registeredVaults = new ArrayList<>(); //todo: there is a possibility that this will be needed to be reloaded
 
     private FileManager() {
         findVaults();
@@ -35,13 +36,20 @@ public class FileManager {
         return result;
     }
 
-    public Long getModificationDate(Long vaultId, String filepath) throws IOException {
+    public Long getModificationDate(Long vaultId, String filepath) throws IOException, VaultNotFoundException {
 
+        Vault v = registeredVaults.stream()
+                                       .filter(vault -> Objects.equals(vault.getId(), vaultId))
+                                       .findAny()
+                                       .orElse(null);
 
+        if (v == null) {
+            throw new VaultNotFoundException("Vault " + vaultId + " not found");
+        }
 
-        Path path = Paths.get(filepath);
+        System.out.println(v.getRootPath() + filepath);
 
-        return Files.getLastModifiedTime(path)
+        return Files.getLastModifiedTime(Path.of(v.getRootPath() + filepath))
                     .toMillis();
     }
 

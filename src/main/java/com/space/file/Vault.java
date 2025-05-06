@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class Vault {
     public static final String configFileSuffix = "e9d55cd1-9fdb-4c83-90f5-4db5cf5c6e8c";
 
+    @Getter
     private final Long id;
     private final UUID ownerUuid;
     private final List<UUID> shardClient;
@@ -50,7 +51,7 @@ public class Vault {
                     UUID.fromString(uuidOwnerStr),
                     shardClient,
                     configFile,
-                    configFile.getAbsolutePath()
+                    configFile.getParent()
             );
         }
     }

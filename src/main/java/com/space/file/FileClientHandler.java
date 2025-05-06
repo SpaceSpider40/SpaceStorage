@@ -1,6 +1,8 @@
 package com.space.file;
 
 import com.space.Commands;
+import com.space.ERRORS;
+import com.space.exceptions.VaultNotFoundException;
 
 import java.io.*;
 import java.net.Socket;
@@ -14,12 +16,15 @@ public class FileClientHandler extends Thread {
 
     private boolean canRead = true;
 
-    public FileClientHandler(Socket socket) throws RuntimeException, SocketException {
+    public FileClientHandler(Socket socket) throws
+            RuntimeException,
+            SocketException
+    {
         this.socket = socket;
         this.socket.setSoTimeout(0);
 
         try {
-            var inputStream = this.socket.getInputStream();
+            var inputStream  = this.socket.getInputStream();
             var outputStream = this.socket.getOutputStream();
 
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -34,7 +39,7 @@ public class FileClientHandler extends Thread {
         System.out.println("FileHandler started");
 
         try {
-            write(Commands.ESTABLISHED_CONNECTION.toString());
+            write(Commands.ESTABLISHED_CONNECTION);
 
             listen();
 
@@ -45,16 +50,27 @@ public class FileClientHandler extends Thread {
         }
     }
 
-    private synchronized void listen() throws IOException, InterruptedException {
+    private synchronized void listen() throws
+            IOException,
+            InterruptedException
+    {
         String line;
         while ((line = bufferedReader.readLine()) != null) {
-            line = line.strip().replace(".", "");
+            line = line.strip()
+                       .replace(".", "");
 
             System.out.println("received: " + line);
             Commands command = Commands.fromString(line);
 
             switch (command) {
-                case Commands.MODAT -> handleModat(Long.valueOf(bufferedReader.readLine()), bufferedReader.readLine());
+                case Commands.MODAT -> {
+                    try {
+                        handleModat(Long.parseLong(bufferedReader.readLine()),
+                                    bufferedReader.readLine());
+                    } catch (NumberFormatException e) {
+                        write(Commands.ERROR, ERRORS.BAD_COMMAND_PARAMS);
+                    }
+                }
                 default -> {
                     System.out.println("Unknown command: " + line);
                     //todo: log the incident
@@ -63,19 +79,28 @@ public class FileClientHandler extends Thread {
         }
     }
 
-    private void handleModat(Long vaultId, String filePath) throws IOException {
+    private void handleModat(Long vaultId, String filePath) throws
+            IOException
+    {
         Long modificationTime;
 
-        try{
-            modificationTime = FileManager.getInstance().getModificationDate(vaultId, filePath);
+        try {
+            modificationTime = FileManager.getInstance()
+                                          .getModificationDate(vaultId, filePath);
         } catch (IOException e) {
             modificationTime = 0L;
+        } catch (VaultNotFoundException e) {
+            write(Commands.ERROR);
+            write(ERRORS.VAULT_NOT_FOUND);
+            return;
         }
 
         write(String.valueOf(modificationTime));
     }
 
-    private synchronized void write(String message) throws IOException {
+    private synchronized void write(String message) throws
+            IOException
+    {
 
         if (socket.isClosed()) {
             return;
@@ -86,5 +111,36 @@ public class FileClientHandler extends Thread {
         bufferedWriter.write(message);
         bufferedWriter.newLine();
         bufferedWriter.flush();
+    }
+
+    private synchronized void write(Commands command) throws
+            IOException
+    {
+        write(command.toString());
+    }
+
+    private synchronized void write(ERRORS error) throws
+            IOException
+    {
+        write(error.getValue());
+    }
+
+    private synchronized void write(Commands command, ERRORS errors) throws
+            IOException
+    {
+        write(command);
+        write(errors);
+    }
+
+    private synchronized void write(int number) throws
+            IOException
+    {
+        write(String.valueOf(number));
+    }
+
+    private synchronized void write(long number) throws
+            IOException
+    {
+        write(String.valueOf(number));
     }
 }

@@ -1,15 +1,24 @@
 import com.space.Commands;
+import lombok.extern.java.Log;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestClients {
 
     private static int s = 100;
+
+    private static void write(BufferedWriter writer, String msg) throws
+            IOException,
+            InterruptedException {
+        writer.write(msg);
+        writer.newLine();
+        writer.flush();
+        Thread.sleep(s);
+    }
 
     @Test
     void testModat() throws IOException, InterruptedException {
@@ -20,30 +29,28 @@ public class TestClients {
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            writer.write("1fb36001-44e2-4519-8639-f9c730087b8c");
-            writer.newLine();
-            writer.flush();
+            write(writer, "1fb36001-44e2-4519-8639-f9c730087b8c");
 
             String r = reader.readLine();
 
-            System.out.println(r);
-
             Thread.sleep(s);
             assertEquals("___ESTABLISHED_CONNECTION___", r.strip());
-            writer.write(Commands.MODAT.toString());
-            writer.newLine();
-            writer.flush();
-            Thread.sleep(s);
-            writer.write("C:\\Users\\space\\IdeaProjects\\SpaceStorage\\test.txt");
-            writer.newLine();
-            writer.flush();
-            Thread.sleep(s);
 
-            String tm = reader.readLine();
+            write(writer, Commands.MODAT.toString());
+            write(writer, String.valueOf(1));
+            write(writer, "/test.txt");
 
-            System.out.println(tm);
+            String tm = reader.readLine().strip().replace("\n", "");
+
+            if (tm.equals(Commands.ERROR.toString())) {
+                String err = reader.readLine().strip().replace("\n", "");
+                assertNotEquals(401, Long.parseLong(err), "Vault doesn't exists");
+
+                fail("Unexpected error: " + Long.valueOf(err));
+            }
 
             assertEquals(13, tm.length());
+
         }
     }
 }

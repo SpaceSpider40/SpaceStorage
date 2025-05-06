@@ -1,7 +1,6 @@
 package com.space;
 
-public enum Commands
-{
+public enum Commands {
     ESTABLISHED_CONNECTION("___ESTABLISHED_CONNECTION___"),
     MODAT("___MODAT___"),
 
@@ -10,9 +9,13 @@ public enum Commands
     FILE("___FILE___"),
     OK("___OK___"),
     EMPTY("___EMPTY___"),
-    UNKNOWN("___UNKNOWN___");
+    ERROR("___ERROR___"),
+    UNKNOWN("___UNKNOWN___")
+
+    ;
 
     private final String command;
+
     Commands(final String s) {
         command = s;
     }

@@ -1,12 +1,18 @@
-## Config 
+## Server Config 
 ```
 {
-    clients: [
-        {
-            uid: "" /uuid v4
-            root: "" /path
-        }
-    ]
+  "server": {
+    "fileManager": {
+      "root": "<path>"
+    }
+  },
+  "clients": [
+    {
+      "uid":"<uuid v4>",
+      "path":"<path>",
+      "port": <port>
+    }
+  ]
 }
 ```
 
