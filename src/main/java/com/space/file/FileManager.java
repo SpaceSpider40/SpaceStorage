@@ -1,6 +1,7 @@
 package com.space.file;
 
 import com.space.config.Config;
+import com.space.exceptions.VaultAlreadyExistsException;
 import com.space.exceptions.VaultNotFoundException;
 
 import java.io.File;
@@ -32,10 +33,11 @@ public class FileManager {
         return result;
     }
 
-    public UUID CreateVault() throws
-            IOException
-    {
+    public UUID CreateVault(String name) throws
+            IOException, VaultAlreadyExistsException {
         UUID uuid = createVaultUUID();
+
+        Config.addVault(name, uuid);
 
         File dir = Files.createDirectories(Path.of(Config.fileSystemRoot, uuid.toString())).toFile();
 

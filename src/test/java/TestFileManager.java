@@ -1,4 +1,5 @@
 import com.space.config.Config;
+import com.space.exceptions.VaultAlreadyExistsException;
 import com.space.file.FileManager;
 import org.junit.jupiter.api.Test;
 
@@ -16,13 +17,12 @@ public class TestFileManager {
 
     @Test
     void testCreateVault() throws
-            IOException
-    {
+            IOException, VaultAlreadyExistsException {
         Config.readConfig();
 
         FileManager fileManager = FileManager.getInstance();
 
-        System.out.println(fileManager.CreateVault());
+        System.out.println(fileManager.CreateVault("Test 2"));
     }
 }
 

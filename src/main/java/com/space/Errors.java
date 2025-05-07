@@ -12,6 +12,7 @@ public enum Errors {
     //VAULT ERRORS
     VAULT_NOT_FOUND(401),
     VAULT_NOT_CREATED(402),
+    VAULT_ALREADY_EXISTS(403),
     ;
 
     @Getter

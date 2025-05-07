@@ -71,7 +71,7 @@ public class TestClients {
             assertEquals("___ESTABLISHED_CONNECTION___", r.strip());
 
             write(writer, Commands.MODAT.toString());
-            write(writer, "2d5b6ea9-850c-482f-aafe-98285ca19aef");
+            write(writer, "1fb36001-44e2-4519-8639-f9c730087b8c");
             write(writer, "/test.txt");
 
             String tm = reader.readLine()
@@ -99,6 +99,7 @@ public class TestClients {
         ConnectionResult connectionResult = new ConnectionResult();
 
         write(connectionResult.bufferedWriter, Commands.VAULT_CREATE.toString());
+        write(connectionResult.bufferedWriter, "creation_test_1");
         String uuid = read(connectionResult.bufferedReader);
 
         if (uuid.equals(Commands.ERROR.toString())) {
