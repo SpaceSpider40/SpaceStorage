@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class FileManager {
@@ -33,6 +34,24 @@ public class FileManager {
         return result;
     }
 
+    public File tryCreateFile(UUID vaultId, String filepath) throws IOException {
+        File vaultRoot = vaultsMap.get(vaultId);
+
+        if(vaultRoot == null) return null;
+
+        File file = Paths.get(vaultRoot.getAbsolutePath(), filepath).toFile();
+
+        file.getParentFile().mkdirs();
+
+        boolean ignore = file.createNewFile();
+
+        return file;
+    }
+
+    public boolean checkIfVaultExists(UUID uuid) {
+        return vaultsMap.containsKey(uuid);
+    }
+
     public UUID CreateVault(String name) throws
             IOException, VaultAlreadyExistsException {
         UUID uuid = createVaultUUID();
@@ -56,8 +75,6 @@ public class FileManager {
         if (v == null) {
             throw new VaultNotFoundException("Vault " + uuid + " not found");
         }
-
-        System.out.println(v.getAbsoluteFile() + filepath);
 
         return Files.getLastModifiedTime(Path.of(v.getAbsolutePath(), filepath))
                     .toMillis();

@@ -1,11 +1,12 @@
 import com.space.Commands;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.java.Log;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -107,5 +108,35 @@ public class TestClients {
         }
 
         assertEquals(36, uuid.length(), "Malformed UUID");
+    }
+
+    @Test
+    void TestFileSubmit() throws IOException, InterruptedException {
+        ConnectionResult connectionResult = new ConnectionResult();
+
+        String filepath = "./text.txt";
+
+        File file = new File(filepath);
+
+        write(connectionResult.bufferedWriter, String.valueOf(Commands.FILE));
+        write(connectionResult.bufferedWriter, "1fb36001-44e2-4519-8639-f9c730087b8c");
+        write(connectionResult.bufferedWriter, filepath.substring(1));
+        write(connectionResult.bufferedWriter, String.valueOf(Files.getLastModifiedTime(Paths.get(filepath)).toMillis()));
+        write(connectionResult.bufferedWriter, String.valueOf(file.length()));
+
+        String okResponse = read(connectionResult.bufferedReader);
+        assertEquals(okResponse, Commands.OK.toString());
+
+        try(FileInputStream fis = new FileInputStream(file)){
+
+            fis.transferTo(connectionResult.socket.getOutputStream());
+        }
+
+        String okResponse2 = read(connectionResult.bufferedReader);
+        assertEquals(okResponse2, Commands.OK.toString());
+
+        write(connectionResult.bufferedWriter, Commands.MODAT.toString());
+        write(connectionResult.bufferedWriter, "1fb36001-44e2-4519-8639-f9c730087b8c");
+        write(connectionResult.bufferedWriter, "./test.txt");
     }
 }

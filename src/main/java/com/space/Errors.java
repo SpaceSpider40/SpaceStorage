@@ -13,6 +13,11 @@ public enum Errors {
     VAULT_NOT_FOUND(401),
     VAULT_NOT_CREATED(402),
     VAULT_ALREADY_EXISTS(403),
+
+    //FILE ERRORS
+    FILE_NOT_TRANSFERRED(501),
+    FILE_OUTDATED(502),
+    FILE_UP_TO_DATE(503),
     ;
 
     @Getter

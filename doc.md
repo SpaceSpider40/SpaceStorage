@@ -33,7 +33,9 @@ folders inside root directory are named with their unique UUID. Server maps cont
 -> client: connection
 <- server: command "___ESTABLISHED_CONNECTION___" // server is ready and listening
 -> client: command "___FILE___"
--> client: [length of file]
+-> client: [vaultUUID]
+-> client: [filepath]
+-> client: [file modification date]
 <- server: command "___OK___" # server is ready to receive
 -> client: writes bytes
 <- server: command "___OK___" # server received all bytes declared by client

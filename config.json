@@ -1,7 +1,7 @@
 {
   "server": {
     "fileManager": {
-      "root": "D:\\Projects\\SpaceStorageRoot"
+      "root": "/home/space/SpaceStorage/Root"
     }
   },
   "clients": [
