@@ -144,7 +144,7 @@ public class FileClientHandler extends Thread {
             throw new FileAlreadyExistsException("File: " + filepath + " is up to date");
         }
 
-        //validation done receive file
+        //validation done, receive a file
         File preparedFile = FileManager.getInstance().tryCreateFile(uuid, filepath);
         if (preparedFile == null) {
             throw new FileSystemException("Could not create file: " + filepath);
