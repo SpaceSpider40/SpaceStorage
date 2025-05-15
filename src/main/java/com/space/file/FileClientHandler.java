@@ -73,17 +73,17 @@ public class FileClientHandler extends Thread {
                         write(Commands.ERROR, Errors.BAD_COMMAND_PARAMS);
                     }
                 }
-                case Commands.VAULT_CREATE -> {
-                    try {
-                        write(handleVaultCreate(read()).toString());
-                    } catch (IOException e) {
-                        write(Commands.ERROR, Errors.VAULT_NOT_CREATED);
-                    } catch (VaultAlreadyExistsException e) {
-                        write(Commands.ERROR, Errors.VAULT_ALREADY_EXISTS);
-                    } catch (IllegalArgumentException | UnexpectedCommandException e) {
-                        write(Commands.ERROR, Errors.BAD_COMMAND_PARAMS);
-                    }
-                }
+//                case Commands.VAULT_CREATE -> {
+//                    try {
+//                        write(handleVaultCreate(read()).toString());
+//                    } catch (IOException e) {
+//                        write(Commands.ERROR, Errors.VAULT_NOT_CREATED);
+//                    } catch (VaultAlreadyExistsException e) {
+//                        write(Commands.ERROR, Errors.VAULT_ALREADY_EXISTS);
+//                    } catch (IllegalArgumentException | UnexpectedCommandException e) {
+//                        write(Commands.ERROR, Errors.BAD_COMMAND_PARAMS);
+//                    }
+//                }
                 case Commands.FILE -> {
                     try{
 
@@ -102,6 +102,7 @@ public class FileClientHandler extends Thread {
                     }
                 }
                 default -> {
+                    write(Commands.ERROR, Errors.UNKNOWN_COMMAND);
                     System.out.println("Unknown command: " + line);
                     //todo: log the incident
                 }
