@@ -4,6 +4,8 @@ import com.space.Commands;
 import com.space.Errors;
 import com.space.exceptions.*;
 import com.space.exceptions.FileAlreadyExistsException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,6 +15,8 @@ import java.nio.file.*;
 import java.util.UUID;
 
 public class FileClientHandler extends Thread {
+    private static final Logger logger = LogManager.getLogger(FileClientHandler.class);
+
     private final Socket socket;
     private final BufferedReader bufferedReader;
     private final BufferedWriter bufferedWriter;
@@ -40,7 +44,7 @@ public class FileClientHandler extends Thread {
 
     @Override
     public void run() {
-        System.out.println("FileHandler started");
+        logger.info("FileHandler started");
 
         try {
             write(Commands.ESTABLISHED_CONNECTION);
@@ -50,7 +54,7 @@ public class FileClientHandler extends Thread {
             sleep(1000);
 
         } catch (IOException | InterruptedException e) {
-            System.out.println("I/O error: " + e.getMessage());
+            logger.error("I/O error: {}", e.getMessage());
         }
     }
 
@@ -62,7 +66,7 @@ public class FileClientHandler extends Thread {
             line = line.strip()
                     .replace(".", "");
 
-            System.out.println("received: " + line);
+            logger.info("received: {}", line);
             Commands command = Commands.fromString(line);
 
             switch (command) {
@@ -103,8 +107,7 @@ public class FileClientHandler extends Thread {
                 }
                 default -> {
                     write(Commands.ERROR, Errors.UNKNOWN_COMMAND);
-                    System.out.println("Unknown command: " + line);
-                    //todo: log the incident
+                    logger.warn("Unknown command: {}", line);
                 }
             }
         }
@@ -147,8 +150,8 @@ public class FileClientHandler extends Thread {
         //validation done, receive a file
         File preparedFile = FileManager.getInstance().tryCreateFile(uuid, filepath);
         if (preparedFile == null) {
+            logger.error("Could not create file: {}", filepath);
             throw new FileSystemException("Could not create file: " + filepath);
-            //todo: log the incident
         }
 
         write(Commands.OK);
@@ -156,12 +159,12 @@ public class FileClientHandler extends Thread {
         try(OutputStream fileOutputStream = Files.newOutputStream(preparedFile.toPath(), StandardOpenOption.WRITE)){
             while (fileSize > 0){
                 int toRead = (int) Math.min(fileSize, 1024);
-                System.out.println("to write: " + fileSize);
+                logger.info("to write: {}", fileSize);
                 fileOutputStream.write(inputStream.readNBytes(toRead));
                 fileOutputStream.flush();
                 fileSize -= 1024;
             }
-            System.out.println("File written");
+            logger.info("File: {} received", filepath);
         }
 
         write(Commands.OK);
@@ -214,7 +217,7 @@ public class FileClientHandler extends Thread {
             return;
         }
 
-        System.out.println("Writing message: " + message);
+        logger.info("Writing message: {}", message);
 
         bufferedWriter.write(message);
         bufferedWriter.newLine();

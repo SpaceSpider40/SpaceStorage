@@ -3,6 +3,8 @@ package com.space.file;
 import com.space.config.Config;
 import com.space.exceptions.VaultAlreadyExistsException;
 import com.space.exceptions.VaultNotFoundException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class FileManager {
+    private static final Logger logger = LogManager.getLogger(FileManager.class);
     private static volatile FileManager instance;
     private static final Object mutex = new Object();
 
@@ -105,11 +108,12 @@ public class FileManager {
                     UUID uuid = UUID.fromString(file.getName());
                     vaultsMap.put(uuid, file);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Invalid UUID: " + file.getName());
+                    logger.error("Invalid UUID: {}", file.getName());
+
                 }
             }
         } else {
-            System.out.println("No Vault found");
+            logger.error("No Vault found");
         }
 
     }

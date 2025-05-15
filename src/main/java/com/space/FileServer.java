@@ -1,6 +1,9 @@
 package com.space;
 
 import com.space.file.FileClientHandler;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -11,17 +14,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class FileServer extends Thread {
+    private static final Logger logger = LogManager.getLogger(FileServer.class);
     private static final long MAX_WAIT_TIME = 3000;
-    private static final Thread.Builder virtualThreadBuilder = Thread.ofVirtual().name("worker-", 0);
+    private static final Thread.Builder virtualThreadBuilder = Thread.ofVirtual().name("fileServerWorker-", 0);
 
     private ServerSocket serverSocket;
 
     private final short port;
+    @Getter
     private final UUID clientId;
 
     private final List<FileClientHandler> fileHandlers = new ArrayList<>();
 
     public FileServer(short port, UUID clientId) {
+        super("fileServer-"+port);
+
         this.port = port;
         this.clientId = clientId;
     }
@@ -32,16 +39,16 @@ public class FileServer extends Thread {
 
         try {
             serverSocket = new ServerSocket(port);
-            System.out.println("Server started on port " + port);
+            logger.info("Server started on port {}", port);
             while (isAlive()) handle(serverSocket.accept());
 
         } catch (Throwable e) {
-            System.out.println(e.getMessage());
+            logger.error("Server(#{}) encountered an error: {}", clientId, e.getMessage());
         }
     }
 
     private void handle(Socket socket) throws IOException {
-        System.out.println("Accepted connection from " + socket.getRemoteSocketAddress());
+        logger.info("Accepted connection from {}", socket.getRemoteSocketAddress());
 
         socket.setSoTimeout(5000);
 

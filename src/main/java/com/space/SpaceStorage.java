@@ -1,6 +1,9 @@
 package com.space;
 
 import com.space.config.Config;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +11,7 @@ import java.util.List;
 
 public class SpaceStorage
 {
+    private static final Logger logger = LogManager.getLogger(SpaceStorage.class);
     private static final List<FileServer> fileServers = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -19,7 +23,7 @@ public class SpaceStorage
             startServers();
 
         } catch (IOException e) {
-            System.err.println("Could not read config file: " + e.getMessage());
+            logger.log(Level.FATAL, "Server failed to start", e);
         }
     }
 
@@ -31,6 +35,9 @@ public class SpaceStorage
     }
 
     private static void startServers(){
-        fileServers.forEach(FileServer::start);
+        fileServers.forEach(fileServer -> {
+            logger.log(Level.INFO, "Starting fileserver for: #{}", fileServer.getClientId());
+            fileServer.start();
+        });
     }
 }
