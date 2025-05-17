@@ -1,6 +1,5 @@
-package com.space;
+package com.space.file;
 
-import com.space.file.FileClientHandler;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

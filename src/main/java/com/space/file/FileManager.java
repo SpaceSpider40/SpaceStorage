@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,6 +54,10 @@ public class FileManager {
 
     public boolean checkIfVaultExists(UUID uuid) {
         return vaultsMap.containsKey(uuid);
+    }
+
+    public FileInputStream prepareFile(UUID uuid, String filename) {
+
     }
 
     public UUID CreateVault(String name) throws

@@ -1,6 +1,8 @@
 package com.space;
 
+import com.space.cli.Cli;
 import com.space.config.Config;
+import com.space.file.FileServer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +16,8 @@ public class SpaceStorage
     private static final Logger logger = LogManager.getLogger(SpaceStorage.class);
     private static final List<FileServer> fileServers = new ArrayList<>();
 
+    private static final Cli cli = new Cli();
+
     public static void main(String[] args) {
         try {
             Config.readConfig();
@@ -21,6 +25,9 @@ public class SpaceStorage
             registerServers();
 
             startServers();
+
+            logger.info("Starting Cli Thread");
+            cli.start();
 
         } catch (IOException e) {
             logger.log(Level.FATAL, "Server failed to start", e);
